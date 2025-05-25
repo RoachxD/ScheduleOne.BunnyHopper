@@ -1,10 +1,10 @@
-<img src="./Resources/Icon.png" alt="Bunny Hopper" width="420" height="426">
+![Bunny Hopper](./Resources/Icon.png)
 
 [![Game](https://img.shields.io/badge/Game-Schedule_I-507437?labelColor=39482D
 )](https://www.scheduleonegame.com/)
 [![MelonLoader](https://img.shields.io/badge/MelonLoader-v0.7.x-79F863?labelColor=FA3768
 )](https://melonwiki.xyz/#/)
-[![Version](https://img.shields.io/badge/Version-1.0.0-D4AC2D?labelColor=3D311D)](LICENSE.md)
+[![Version](https://img.shields.io/badge/Version-1.0.0-D4AC2D?labelColor=3D311D)](https://github.com/RoachxD/ScheduleOne.BunnyHopper/releases/latest)
 [![License](https://img.shields.io/badge/License-MIT-727C7C?labelColor=3D311D)](LICENSE.md)
 
 Tired of your thumbs getting a workout just to maintain momentum in Schedule I? Well, fret no more!
