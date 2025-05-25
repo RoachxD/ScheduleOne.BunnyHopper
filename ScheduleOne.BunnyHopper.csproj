@@ -1,0 +1,136 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>BunnyHopper</AssemblyName>
+    <Description>A MelonLoader mod for Schedule I that enables "true" auto-jumping/bunny-hopping.</Description>
+    <Version>1.0.0</Version>
+    <Authors>Roach_</Authors>
+    <Copyright>Copyright © 2025 Roach_ (Adrian Nicolae)</Copyright>
+    <NeutralLanguage>en-GB</NeutralLanguage>
+    <RootNamespace>BunnyHopper</RootNamespace>
+    <Configurations>Debug_Il2Cpp;Release_Il2Cpp;Debug_Mono;Release_Mono</Configurations>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' != null AND $(Configuration.StartsWith('Debug'))">
+    <Optimize>false</Optimize>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' != null AND $(Configuration.StartsWith('Release'))">
+    <Optimize>true</Optimize>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' != null AND $(Configuration.Contains('Il2Cpp'))">
+    <DefineConstants>$(DefineConstants);IL2CPP_BUILD</DefineConstants>
+    <AssemblyName>BunnyHopper.Il2Cpp</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' != null AND $(Configuration.Contains('Mono'))">
+    <DefineConstants>$(DefineConstants);MONO_BUILD</DefineConstants>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>BunnyHopper.Mono</AssemblyName>
+  </PropertyGroup>
+
+
+  <ItemGroup Condition="$(DefineConstants.Contains('IL2CPP_BUILD'))">
+    <Reference Include="MelonLoader">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\net6\MelonLoader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\net6\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\Il2CppAssemblies\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.InputSystem">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\Il2CppAssemblies\Unity.InputSystem.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="$(DefineConstants.Contains('MONO_BUILD'))">
+    <Reference Include="MelonLoader">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\net35\MelonLoader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(ScheduleOneGameDir)\MelonLoader\net35\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(ScheduleOneGameDir)\Schedule I_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ScheduleOneGameDir)\Schedule I_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(ScheduleOneGameDir)\Schedule I_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(ScheduleOneGameDir)\Schedule I_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.InputSystem">
+      <HintPath>$(ScheduleOneGameDir)\Schedule I_Data\Managed\Unity.InputSystem.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(ScheduleOneGameDir)\Schedule I_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="EnsureGameDir" BeforeTargets="BeforeBuild"
+    Condition="!Exists('$(ScheduleOneGameDir)')">
+    <Error
+      Text="The ScheduleOneGameDir property is not set or points to a non-existent directory. Please set it as an environment variable or in a Directory.Build.props file. Current value: '$(ScheduleOneGameDir)'" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent"
+    Condition="'$(OS)' == 'Windows_NT' And Exists('$(ScheduleOneGameDir)')">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ScheduleOneGameDir)\Mods"
+      SkipUnchangedFiles="true" />
+    <Message Text="Copied $(TargetFileName) to $(ScheduleOneGameDir)\Mods" Importance="high" />
+  </Target>
+
+</Project>

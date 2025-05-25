@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduleOne.BunnyHopper", "ScheduleOne.BunnyHopper.csproj", "{E1A876C3-8BAB-6450-4204-398C42F7235C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_Il2Cpp|Any CPU = Debug_Il2Cpp|Any CPU
+		Release_Il2Cpp|Any CPU = Release_Il2Cpp|Any CPU
+		Debug_Mono|Any CPU = Debug_Mono|Any CPU
+		Release_Mono|Any CPU = Release_Mono|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E1A876C3-8BAB-6450-4204-398C42F7235C}.Debug_Il2Cpp|Any CPU.ActiveCfg = Debug_Il2Cpp|Any CPU
+		{E1A876C3-8BAB-6450-4204-398C42F7235C}.Debug_Il2Cpp|Any CPU.Build.0 = Debug_Il2Cpp|Any CPU
+		{E1A876C3-8BAB-6450-4204-398C42F7235C}.Release_Il2Cpp|Any CPU.ActiveCfg = Release_Il2Cpp|Any CPU
+		{E1A876C3-8BAB-6450-4204-398C42F7235C}.Release_Il2Cpp|Any CPU.Build.0 = Release_Il2Cpp|Any CPU
+		{E1A876C3-8BAB-6450-4204-398C42F7235C}.Debug_Mono|Any CPU.ActiveCfg = Debug_Mono|Any CPU
+		{E1A876C3-8BAB-6450-4204-398C42F7235C}.Debug_Mono|Any CPU.Build.0 = Debug_Mono|Any CPU
+		{E1A876C3-8BAB-6450-4204-398C42F7235C}.Release_Mono|Any CPU.ActiveCfg = Release_Mono|Any CPU
+		{E1A876C3-8BAB-6450-4204-398C42F7235C}.Release_Mono|Any CPU.Build.0 = Release_Mono|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FE0E166A-6E56-4D21-B6BF-E5A3A28A3B81}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,75 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build: Il2Cpp Debug",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/BunnyHopper.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "-c",
+                "Debug_Il2Cpp"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "detail": "Builds the Il2Cpp Debug flavor of Bunny Hopper."
+        },
+        {
+            "label": "Build: Il2Cpp Release",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/BunnyHopper.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "-c",
+                "Release_Il2Cpp"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Builds the Il2Cpp Release flavor of Bunny Hopper."
+        },
+        {
+            "label": "Build: Mono Debug",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/BunnyHopper.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "-c",
+                "Debug_Mono"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build",
+            "detail": "Builds the Mono Debug flavor of Bunny Hopper."
+        },
+        {
+            "label": "Build: Mono Release",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/BunnyHopper.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "-c",
+                "Release_Mono"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build",
+            "detail": "Builds the Mono Release flavor of Bunny Hopper."
+        }
+    ]
+}
