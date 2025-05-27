@@ -128,9 +128,26 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent"
     Condition="'$(OS)' == 'Windows_NT' And Exists('$(ScheduleOneGameDir)')">
+    <Message Text="Attempting to close Schedule I.exe if it is running.." Importance="high" />
+    <Exec Command="taskkill /F /IM &quot;Schedule I.exe&quot; 2&gt;nul" IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="TaskKillExitCode" />
+    </Exec>
+
+    <Message Text="Schedule I.exe was found and the close command was issued successfully."
+      Importance="high"
+      Condition="'$(TaskKillExitCode)' == '0'" />
+    <Message Text="Schedule I.exe was not running." Importance="high"
+      Condition="'$(TaskKillExitCode)' == '128'" />
+    <Message
+      Text="taskkill command for Schedule I.exe finished with exit code: $(TaskKillExitCode) (0 means success, 128 means process not found)."
+      Importance="high"
+      Condition="'$(TaskKillExitCode)' != '0' AND '$(TaskKillExitCode)' != '128'" />
+
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ScheduleOneGameDir)\Mods"
       SkipUnchangedFiles="true" />
-    <Message Text="Copied $(TargetFileName) to $(ScheduleOneGameDir)\Mods" Importance="high" />
+    <Message
+      Text="Copied $(TargetFileName) to $(ScheduleOneGameDir)\Mods"
+      Importance="high" />
   </Target>
 
 </Project>
