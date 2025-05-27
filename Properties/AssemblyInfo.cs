@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Runtime.InteropServices;
 using MelonLoader;
 
@@ -19,3 +20,4 @@ using MelonLoader;
 )]
 [assembly: MelonGame("TVGS", "Schedule I")]
 [assembly: MelonColor(255, 212, 172, 45)]
+[assembly: AssemblyMetadata("NexusModID", "1033")]
