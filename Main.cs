@@ -418,22 +418,6 @@ public class Main : MelonMod
 
         private static bool ShouldAutoJump(PlayerMovementType pm)
         {
-            if (
-                pm == null
-                || pm.Controller == null
-                || jumpActionReference == null
-                || jumpActionReference.action == null
-            )
-                return false;
-
-            bool isJumpKeyPressed = jumpActionReference.action.IsPressed();
-            bool isEnabled = Enabled.Value;
-
-            // Get all relevant states
-            bool pmIsGrounded = pm.IsGrounded;
-            bool controllerIsGrounded = pm.Controller.isGrounded; // For comparison
-            bool pmCanJump = pm.canJump;
-
             bool pmIsJumping = false;
             try
             {
@@ -453,15 +437,10 @@ public class Main : MelonMod
                 );
                 return false;
             }
-
-            bool conditionsMet =
-                isEnabled
-                && isJumpKeyPressed
-                && (pmIsGrounded || controllerIsGrounded) // Player is grounded if EITHER PM or Controller says so
-                && pmCanJump
+            return jumpActionReference.action.IsPressed()
+                && (pm.IsGrounded || pm.Controller.isGrounded) // Player is grounded if EITHER PM or Controller says so
+                && pm.canJump
                 && !pmIsJumping;
-
-            return conditionsMet;
         }
 
         private static bool ShouldSkipPatch(PlayerMovementType __instance)
