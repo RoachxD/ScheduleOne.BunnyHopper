@@ -71,7 +71,7 @@ public class Main : MelonMod
             HarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
             var patchedMethods = HarmonyInstance
                 .GetPatchedMethods()
-                .Select(p => p.DeclaringType.FullName + "." + p.Name);
+                .Select(p => $"{p.DeclaringType.FullName}.{p.Name}");
             string patchesInfo = string.Join(", ", patchedMethods);
             Melon<Main>.Logger.Msg($"Harmony patches successfully applied: {patchesInfo}.");
         }
@@ -348,9 +348,6 @@ public class Main : MelonMod
             PlayerJumpState jumpState
         )
         {
-            if (pm == null || pm.Controller == null)
-                yield break;
-
             int instanceId = pm.GetInstanceID();
             float timeoutSeconds = AutoJumpLiftoffTimeoutMilliseconds.Value / 1000.0f;
             float endTime = Time.time + timeoutSeconds;
@@ -363,8 +360,11 @@ public class Main : MelonMod
 
             while (Time.time < endTime)
             {
+                // Player or controller gone
                 if (pm == null || pm.Controller == null)
-                    yield break; // Player or controller gone
+                {
+                    yield break;
+                }
 
                 // Check if Postfix has already confirmed liftoff and cleared the flag
                 if (!jumpState.AwaitingLiftoffAfterAutoJump)
@@ -417,16 +417,24 @@ public class Main : MelonMod
 
         private static bool ShouldAutoJump(PlayerMovementType pm)
         {
-            bool pmIsJumping = false;
+            if (
+                !jumpActionReference.action.IsPressed()
+                || !(pm.IsGrounded || pm.Controller.isGrounded) // Player is grounded if EITHER PM or Controller says so
+                || !pm.canJump
+            )
+            {
+                return false;
+            }
+
             try
             {
                 if (_isJumpingMemberInfo is FieldInfo fieldInfo)
                 {
-                    pmIsJumping = (bool)fieldInfo.GetValue(pm);
+                    return (bool)fieldInfo.GetValue(pm);
                 }
                 else if (_isJumpingMemberInfo is PropertyInfo propertyInfo)
                 {
-                    pmIsJumping = (bool)propertyInfo.GetValue(pm);
+                    return (bool)propertyInfo.GetValue(pm);
                 }
             }
             catch (Exception ex)
@@ -434,12 +442,8 @@ public class Main : MelonMod
                 Melon<Main>.Logger.Error(
                     $"Error getting PlayerMovement.isJumping via reflection: {ex.Message}"
                 );
-                return false;
             }
-            return jumpActionReference.action.IsPressed()
-                && (pm.IsGrounded || pm.Controller.isGrounded) // Player is grounded if EITHER PM or Controller says so
-                && pm.canJump
-                && !pmIsJumping;
+            return false;
         }
 
         private static bool ShouldSkipPatch(PlayerMovementType __instance)
