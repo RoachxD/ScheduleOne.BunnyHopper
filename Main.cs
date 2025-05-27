@@ -240,7 +240,7 @@ public class Main : MelonMod
             if (jumpState.AwaitingLiftoffAfterAutoJump)
             {
 #if DEBUG
-                Melon<BunnyHopper>.Logger.Msg(
+                Melon<Main>.Logger.Msg(
                     $"[Move PF ID {instanceId}] Awaiting liftoff. Controller.isGrounded: {currentControllerIsGrounded}, PM.IsGrounded: {__instance.IsGrounded}"
                 );
 #endif
@@ -248,7 +248,7 @@ public class Main : MelonMod
                 if (!currentControllerIsGrounded)
                 {
 #if DEBUG
-                    Melon<BunnyHopper>.Logger.Msg(
+                    Melon<Main>.Logger.Msg(
                         $"[Move PF ID {instanceId}] Liftoff confirmed by Controller.isGrounded. Updating jumpState."
                     );
 #endif
@@ -267,7 +267,7 @@ public class Main : MelonMod
             if (!wasGroundedPrevController && currentControllerIsGrounded)
             {
 #if DEBUG
-                Melon<BunnyHopper>.Logger.Msg(
+                Melon<Main>.Logger.Msg(
                     $"[Move PF ID {instanceId}] Just Landed (Controller state). ModInitiatedThisJump: {modDidInitiateThisJump}"
                 );
 #endif
@@ -281,7 +281,7 @@ public class Main : MelonMod
                 if (ShouldAutoJump(__instance))
                 {
 #if DEBUG
-                    Melon<BunnyHopper>.Logger.Msg(
+                    Melon<Main>.Logger.Msg(
                         $"[Move PF ID {instanceId}] Conditions met for auto-jump. Starting ExecuteAutoJumpCoroutine."
                     );
 #endif
@@ -303,7 +303,7 @@ public class Main : MelonMod
             if (jumpState.AwaitingLiftoffAfterAutoJump)
             {
 #if DEBUG
-                Melon<BunnyHopper>.Logger.Msg(
+                Melon<Main>.Logger.Msg(
                     $"[ExecuteAutoJumpCoro ID {instanceId}] Already awaiting liftoff. Aborting new coroutine."
                 );
 #endif
@@ -313,7 +313,7 @@ public class Main : MelonMod
             jumpState.AwaitingLiftoffAfterAutoJump = true;
             jumpState.ModInitiatedCurrentJump = false;
 #if DEBUG
-            Melon<BunnyHopper>.Logger.Msg(
+            Melon<Main>.Logger.Msg(
                 $"[ExecuteAutoJumpCoro ID {instanceId}] Set AwaitingLiftoffAfterAutoJump. Will attempt jump after 1 frame delay."
             );
 #endif
@@ -324,7 +324,7 @@ public class Main : MelonMod
             if (ShouldAutoJump(playerMovement))
             {
 #if DEBUG
-                Melon<BunnyHopper>.Logger.Msg(
+                Melon<Main>.Logger.Msg(
                     $"[ExecuteAutoJumpCoro ID {instanceId}] Conditions met after delay. Performing Jump."
                 );
 #endif
@@ -335,7 +335,7 @@ public class Main : MelonMod
             else
             {
 #if DEBUG
-                Melon<BunnyHopper>.Logger.Msg(
+                Melon<Main>.Logger.Msg(
                     $"[ExecuteAutoJumpCoro ID {instanceId}] Conditions NOT met after delay. Resetting AwaitingLiftoffAfterAutoJump."
                 );
 #endif
@@ -353,7 +353,7 @@ public class Main : MelonMod
             float endTime = Time.time + timeoutSeconds;
 
 #if DEBUG
-            Melon<BunnyHopper>.Logger.Msg(
+            Melon<Main>.Logger.Msg(
                 $"[MonitorLiftoff ID {instanceId}] Started. Timeout: {AutoJumpLiftoffTimeoutMilliseconds.Value}ms. Will check Controller.isGrounded if timeout occurs."
             );
 #endif
@@ -370,7 +370,7 @@ public class Main : MelonMod
                 if (!jumpState.AwaitingLiftoffAfterAutoJump)
                 {
 #if DEBUG
-                    Melon<BunnyHopper>.Logger.Msg(
+                    Melon<Main>.Logger.Msg(
                         $"[MonitorLiftoff ID {instanceId}] AwaitingLiftoffAfterAutoJump flag cleared by Postfix (liftoff success). Exiting monitor."
                     );
 #endif
@@ -383,7 +383,7 @@ public class Main : MelonMod
             if (pm != null && pm.Controller != null && jumpState.AwaitingLiftoffAfterAutoJump)
             {
 #if DEBUG
-                Melon<BunnyHopper>.Logger.Warning(
+                Melon<Main>.Logger.Warning(
                     $"[MonitorLiftoff ID {instanceId}] Timeout! AwaitingLiftoffAfterAutoJump still true."
                 );
 #endif
@@ -391,7 +391,7 @@ public class Main : MelonMod
                 if (pm.Controller.isGrounded)
                 {
 #if DEBUG
-                    Melon<BunnyHopper>.Logger.Warning(
+                    Melon<Main>.Logger.Warning(
                         $"[MonitorLiftoff ID {instanceId}] Player still Controller.isGrounded after timeout. Resetting AwaitingLiftoffAfterAutoJump. Jump likely failed or was suppressed."
                     );
 #endif
@@ -400,7 +400,7 @@ public class Main : MelonMod
                 else // This indicates a potential issue where Postfix didn't clear the flag despite liftoff.
                 {
 #if DEBUG
-                    Melon<BunnyHopper>.Logger.Warning(
+                    Melon<Main>.Logger.Warning(
                         $"[MonitorLiftoff ID {instanceId}] Player is NOT Controller.isGrounded after timeout, but awaiting flag was not cleared by Postfix. Clearing it now."
                     );
 #endif
@@ -409,7 +409,7 @@ public class Main : MelonMod
             }
 #if DEBUG
             else
-                Melon<BunnyHopper>.Logger.Msg(
+                Melon<Main>.Logger.Msg(
                     $"[MonitorLiftoff ID {instanceId}] Timeout expired, but awaiting flag was already false or player/controller gone."
                 );
 #endif
