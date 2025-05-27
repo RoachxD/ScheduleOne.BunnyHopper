@@ -446,15 +446,13 @@ public class Main : MelonMod
             return false;
         }
 
-        private static bool ShouldSkipPatch(PlayerMovementType __instance)
-        {
-            return !Enabled.Value
-                || _jumpMethodInfo == null
-                || _isJumpingMemberInfo == null
-                || jumpActionReference == null
-                || jumpActionReference.action == null
-                || __instance == null
-                || __instance.Controller == null;
-        }
+        private static bool ShouldSkipPatch(PlayerMovementType __instance) =>
+            !Enabled.Value
+            || _jumpMethodInfo == null
+            || _isJumpingMemberInfo == null
+            || jumpActionReference == null
+            || jumpActionReference.action == null
+            || __instance == null
+            || __instance.Controller == null;
     }
 }
