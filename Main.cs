@@ -84,33 +84,32 @@ public class Main : MelonMod
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {
         playerJumpStates.Clear();
-
         if (!Enabled.Value || jumpActionReference != null)
         {
             return;
         }
 
-        if (sceneName != "Main")
+        if (sceneName != "Menu")
         {
             return;
         }
 
-        Melon<Main>.Logger.Msg($"Scene '{sceneName}' loaded. Attempting to detect Jump Action..");
+        Melon<Main>.Logger.Msg(
+            "Main menu was loaded, attempting to detect Jump Action reference.."
+        );
         DetectJumpAction();
     }
 
     private static void DetectJumpAction()
     {
-        var pauseMenu = UnityEngine.Object.FindObjectOfType<PauseMenu>();
-        if (pauseMenu == null)
+        var mainMenu = GameObject.Find("MainMenu");
+        if (mainMenu == null)
         {
-            Melon<Main>.Logger.Error("Pause Menu not found, unable to detect Jump Action!");
+            Melon<Main>.Logger.Error("Main Menu not found, unable to detect Jump Action!");
             return;
         }
 
-        Transform jumpControl = pauseMenu.transform.Find(
-            "Container/SettingsScreen_Ingame/Content/Controls/Row/Jump"
-        );
+        Transform jumpControl = mainMenu.transform.Find("Settings/Content/Controls/Row/Jump");
         if (jumpControl == null)
         {
             Melon<Main>.Logger.Error(
