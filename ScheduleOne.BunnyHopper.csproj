@@ -19,13 +19,14 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' != null AND $(Configuration.StartsWith('Debug'))">
+    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
     <Optimize>false</Optimize>
-    <DefineDebug>true</DefineDebug>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' != null AND $(Configuration.StartsWith('Release'))">
+    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
