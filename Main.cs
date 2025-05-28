@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -33,7 +32,7 @@ public class Main : MelonMod
     }
     private static InputActionReference jumpActionReference = null;
 
-    private static readonly Dictionary<int, PlayerJumpState> playerJumpStates = new();
+    private static PlayerJumpState currentPlayerJumpState;
 
     public override void OnInitializeMelon()
     {
@@ -82,7 +81,6 @@ public class Main : MelonMod
 
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {
-        playerJumpStates.Clear();
         if (!Enabled.Value || jumpActionReference != null)
         {
             return;
@@ -242,15 +240,8 @@ public class Main : MelonMod
             if (ShouldSkipPatch(__instance))
                 return;
 
-            int instanceId = __instance.GetInstanceID();
-            if (!playerJumpStates.TryGetValue(instanceId, out PlayerJumpState jumpState))
-            {
-                // Ensure playerJumpStates has an entry for the instance.
-                jumpState = new PlayerJumpState();
-                playerJumpStates[instanceId] = jumpState;
-            }
-
-            jumpState.WasGroundedBeforeMove = __instance.Controller.isGrounded;
+            currentPlayerJumpState ??= new PlayerJumpState();
+            currentPlayerJumpState.WasGroundedBeforeMove = __instance.Controller.isGrounded;
         }
 
         [SuppressMessage(
@@ -263,12 +254,10 @@ public class Main : MelonMod
             if (ShouldSkipPatch(__instance))
                 return;
 
-            int instanceId = __instance.GetInstanceID();
-            if (!playerJumpStates.TryGetValue(instanceId, out PlayerJumpState jumpState))
+            if (currentPlayerJumpState == null)
             {
-                // This should not happen if Prefix ran correctly. Log an error and abort.
                 Melon<Main>.Logger.Error(
-                    $"[Move PF ID {instanceId}] Critical: PlayerJumpState not found or null after Prefix. Aborting Postfix logic."
+                    $"[PlayerMovement.Move.Postfix] Critical: currentPlayerJumpState is null. Aborting Postfix logic."
                 );
                 return;
             }
@@ -276,11 +265,11 @@ public class Main : MelonMod
             bool currentControllerIsGrounded = __instance.Controller.isGrounded;
 
             // Check if we were awaiting liftoff from a mod-initiated auto-jump.
-            if (jumpState.AwaitingLiftoffAfterAutoJump)
+            if (currentPlayerJumpState.AwaitingLiftoffAfterAutoJump)
             {
 #if DEBUG
                 Melon<Main>.Logger.Msg(
-                    $"[Move PF ID {instanceId}] Awaiting liftoff. Controller.isGrounded: {currentControllerIsGrounded}, PM.IsGrounded: {__instance.IsGrounded}"
+                    $"[PlayerMovement.Move.Postfix] Awaiting liftoff. Controller.isGrounded: {currentControllerIsGrounded}, PM.IsGrounded: {__instance.IsGrounded}"
                 );
 #endif
                 // Liftoff achieved based on CharacterController.
@@ -288,32 +277,32 @@ public class Main : MelonMod
                 {
 #if DEBUG
                     Melon<Main>.Logger.Msg(
-                        $"[Move PF ID {instanceId}] Liftoff confirmed by Controller.isGrounded. Updating jumpState."
+                        $"[PlayerMovement.Move.Postfix] Liftoff confirmed by Controller.isGrounded. Updating jumpState."
                     );
 #endif
-                    jumpState.AwaitingLiftoffAfterAutoJump = false;
-                    jumpState.ModInitiatedCurrentJump = true; // Mark that the current jump (now airborne) was mod-initiated
+                    currentPlayerJumpState.AwaitingLiftoffAfterAutoJump = false;
+                    currentPlayerJumpState.ModInitiatedCurrentJump = true; // Mark that the current jump (now airborne) was mod-initiated
                 }
                 // else: still awaiting liftoff, Controller is still grounded.
                 return; // If awaiting liftoff, do nothing else this frame (no landing checks, no new auto-jump).
             }
 
             // Standard logic for when not awaiting liftoff (e.g., regular movement, landing).
-            bool wasGroundedPrevController = jumpState.WasGroundedBeforeMove;
-            bool modDidInitiateThisJump = jumpState.ModInitiatedCurrentJump;
+            bool wasGroundedPrevController = currentPlayerJumpState.WasGroundedBeforeMove;
+            bool modDidInitiateThisJump = currentPlayerJumpState.ModInitiatedCurrentJump;
 
             // Landing condition: was not grounded before Move, is grounded now.
             if (!wasGroundedPrevController && currentControllerIsGrounded)
             {
 #if DEBUG
                 Melon<Main>.Logger.Msg(
-                    $"[Move PF ID {instanceId}] Just Landed (Controller state). ModInitiatedThisJump: {modDidInitiateThisJump}"
+                    $"[PlayerMovement.Move.Postfix] Just Landed (Controller state). ModInitiatedThisJump: {modDidInitiateThisJump}"
                 );
 #endif
                 if (modDidInitiateThisJump)
                 {
                     // Reset flag, this mod-initiated jump has now landed.
-                    jumpState.ModInitiatedCurrentJump = false;
+                    currentPlayerJumpState.ModInitiatedCurrentJump = false;
                 }
 
                 // Check if we should initiate a new auto-jump upon landing.
@@ -321,10 +310,12 @@ public class Main : MelonMod
                 {
 #if DEBUG
                     Melon<Main>.Logger.Msg(
-                        $"[Move PF ID {instanceId}] Conditions met for auto-jump. Starting ExecuteAutoJumpCoroutine."
+                        $"[PlayerMovement.Move.Postfix] Conditions met for auto-jump. Starting ExecuteAutoJumpCoroutine."
                     );
 #endif
-                    MelonCoroutines.Start(ExecuteAutoJumpCoroutine(__instance, jumpState));
+                    MelonCoroutines.Start(
+                        ExecuteAutoJumpCoroutine(__instance, currentPlayerJumpState)
+                    );
                 }
             }
         }
@@ -337,13 +328,11 @@ public class Main : MelonMod
             if (playerMovement == null || playerMovement.Controller == null)
                 yield break;
 
-            int instanceId = playerMovement.GetInstanceID();
-
             if (jumpState.AwaitingLiftoffAfterAutoJump)
             {
 #if DEBUG
                 Melon<Main>.Logger.Msg(
-                    $"[ExecuteAutoJumpCoro ID {instanceId}] Already awaiting liftoff. Aborting new coroutine."
+                    $"[ExecuteAutoJumpCoro] Already awaiting liftoff. Aborting new coroutine."
                 );
 #endif
                 yield break;
@@ -353,7 +342,7 @@ public class Main : MelonMod
             jumpState.ModInitiatedCurrentJump = false;
 #if DEBUG
             Melon<Main>.Logger.Msg(
-                $"[ExecuteAutoJumpCoro ID {instanceId}] Set AwaitingLiftoffAfterAutoJump. Will attempt jump after 1 frame delay."
+                $"[ExecuteAutoJumpCoro] Set AwaitingLiftoffAfterAutoJump. Will attempt jump after 1 frame delay."
             );
 #endif
 
@@ -364,7 +353,7 @@ public class Main : MelonMod
             {
 #if DEBUG
                 Melon<Main>.Logger.Msg(
-                    $"[ExecuteAutoJumpCoro ID {instanceId}] Conditions met after delay. Performing Jump."
+                    $"[ExecuteAutoJumpCoro] Conditions met after delay. Performing Jump."
                 );
 #endif
                 if (_invokeJumpMethod != null)
@@ -385,7 +374,7 @@ public class Main : MelonMod
             {
 #if DEBUG
                 Melon<Main>.Logger.Msg(
-                    $"[ExecuteAutoJumpCoro ID {instanceId}] Conditions NOT met after delay. Resetting AwaitingLiftoffAfterAutoJump."
+                    $"[ExecuteAutoJumpCoro] Conditions NOT met after delay. Resetting AwaitingLiftoffAfterAutoJump."
                 );
 #endif
                 jumpState.AwaitingLiftoffAfterAutoJump = false;
@@ -397,13 +386,12 @@ public class Main : MelonMod
             PlayerJumpState jumpState
         )
         {
-            int instanceId = playerMovement.GetInstanceID();
             float timeoutSeconds = AutoJumpLiftoffTimeoutMilliseconds.Value / 1000.0f;
             float endTime = Time.time + timeoutSeconds;
 
 #if DEBUG
             Melon<Main>.Logger.Msg(
-                $"[MonitorLiftoff ID {instanceId}] Started. Timeout: {AutoJumpLiftoffTimeoutMilliseconds.Value}ms. Will check Controller.isGrounded if timeout occurs."
+                $"[MonitorLiftoff] Started. Timeout: {AutoJumpLiftoffTimeoutMilliseconds.Value}ms. Will check Controller.isGrounded if timeout occurs."
             );
 #endif
 
@@ -420,7 +408,7 @@ public class Main : MelonMod
                 {
 #if DEBUG
                     Melon<Main>.Logger.Msg(
-                        $"[MonitorLiftoff ID {instanceId}] AwaitingLiftoffAfterAutoJump flag cleared by Postfix (liftoff success). Exiting monitor."
+                        $"[MonitorLiftoff] AwaitingLiftoffAfterAutoJump flag cleared by Postfix (liftoff success). Exiting monitor."
                     );
 #endif
                     yield break;
@@ -437,7 +425,7 @@ public class Main : MelonMod
             {
 #if DEBUG
                 Melon<Main>.Logger.Warning(
-                    $"[MonitorLiftoff ID {instanceId}] Timeout! AwaitingLiftoffAfterAutoJump still true."
+                    $"[MonitorLiftoff] Timeout! AwaitingLiftoffAfterAutoJump still true."
                 );
 #endif
                 // Final check using Controller.isGrounded
@@ -445,7 +433,7 @@ public class Main : MelonMod
                 {
 #if DEBUG
                     Melon<Main>.Logger.Warning(
-                        $"[MonitorLiftoff ID {instanceId}] Player still Controller.isGrounded after timeout. Resetting AwaitingLiftoffAfterAutoJump. Jump likely failed or was suppressed."
+                        $"[MonitorLiftoff] Player still Controller.isGrounded after timeout. Resetting AwaitingLiftoffAfterAutoJump. Jump likely failed or was suppressed."
                     );
 #endif
                     jumpState.AwaitingLiftoffAfterAutoJump = false;
@@ -454,7 +442,7 @@ public class Main : MelonMod
                 {
 #if DEBUG
                     Melon<Main>.Logger.Warning(
-                        $"[MonitorLiftoff ID {instanceId}] Player is NOT Controller.isGrounded after timeout, but awaiting flag was not cleared by Postfix. Clearing it now."
+                        $"[MonitorLiftoff] Player is NOT Controller.isGrounded after timeout, but awaiting flag was not cleared by Postfix. Clearing it now."
                     );
 #endif
                     jumpState.AwaitingLiftoffAfterAutoJump = false;
@@ -463,7 +451,7 @@ public class Main : MelonMod
 #if DEBUG
             else
                 Melon<Main>.Logger.Msg(
-                    $"[MonitorLiftoff ID {instanceId}] Timeout expired, but awaiting flag was already false or player/controller gone."
+                    $"[MonitorLiftoff] Timeout expired, but awaiting flag was already false or player/controller gone."
                 );
 #endif
         }
