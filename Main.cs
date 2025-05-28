@@ -243,13 +243,14 @@ public class Main : MelonMod
                 return;
 
             int instanceId = __instance.GetInstanceID();
-            if (!playerJumpStates.ContainsKey(instanceId))
+            if (!playerJumpStates.TryGetValue(instanceId, out PlayerJumpState jumpState))
             {
                 // Ensure playerJumpStates has an entry for the instance.
-                playerJumpStates[instanceId] = new PlayerJumpState();
+                jumpState = new PlayerJumpState();
+                playerJumpStates[instanceId] = jumpState;
             }
 
-            playerJumpStates[instanceId].WasGroundedBeforeMove = __instance.Controller.isGrounded;
+            jumpState.WasGroundedBeforeMove = __instance.Controller.isGrounded;
         }
 
         [SuppressMessage(
