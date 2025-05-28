@@ -20,6 +20,7 @@
 
   <PropertyGroup Condition="'$(Configuration)' != null AND $(Configuration.StartsWith('Debug'))">
     <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
   </PropertyGroup>

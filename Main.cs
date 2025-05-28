@@ -475,6 +475,11 @@ public class Main : MelonMod
                 || !playerMovement.canJump
             )
             {
+#if DEBUG
+                Melon<Main>.Logger.Msg(
+                    $"[ShouldAutoJump] Conditions not met for auto-jump. Jump Action pressed: {jumpActionReference.action.IsPressed()}, IsGrounded: {playerMovement.IsGrounded}, Controller.isGrounded: {playerMovement.Controller.isGrounded}, canJump: {playerMovement.canJump}"
+                );
+#endif
                 return false;
             }
 
