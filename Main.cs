@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using MelonLoader;
 using HarmonyLib;
@@ -10,12 +11,10 @@ using UnityEngine.InputSystem;
 using BunnyHopper.Models;
 
 #if IL2CPP_BUILD
-using Il2CppScheduleOne.UI;
 using Il2CppScheduleOne.UI.Settings;
 using IEnumerator = Il2CppSystem.Collections.IEnumerator;
 using PlayerMovementType = Il2CppScheduleOne.PlayerScripts.PlayerMovement;
 #elif MONO_BUILD
-using ScheduleOne.UI;
 using ScheduleOne.UI.Settings;
 using IEnumerator = System.Collections.IEnumerator;
 using PlayerMovementType = ScheduleOne.PlayerScripts.PlayerMovement;
@@ -152,8 +151,8 @@ public class Main : MelonMod
     [HarmonyPatch(typeof(PlayerMovementType), "Move")]
     private static class PlayerMovementMovePatch
     {
-        private static MethodInfo _jumpMethodInfo;
-        private static MemberInfo _isJumpingMemberInfo; // Could be FieldInfo or PropertyInfo
+        private static Func<PlayerMovementType, IEnumerator> _invokeJumpMethod;
+        private static Func<PlayerMovementType, bool> _getIsJumpingValue;
 
         [SuppressMessage(
             "csharpsquid",
@@ -162,12 +161,32 @@ public class Main : MelonMod
         )]
         static PlayerMovementMovePatch()
         {
+            var playerMovementType = typeof(PlayerMovementType);
             // Initialize reflection members for Jump method
-            _jumpMethodInfo = typeof(PlayerMovementType).GetMethod(
+            MethodInfo jumpMethod = playerMovementType.GetMethod(
                 "Jump",
                 BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public
             );
-            if (_jumpMethodInfo == null)
+            if (jumpMethod != null)
+            {
+                try
+                {
+                    var param = Expression.Parameter(playerMovementType, "playerMovement");
+                    var call = Expression.Call(param, jumpMethod);
+                    var lambda = Expression.Lambda<Func<PlayerMovementType, IEnumerator>>(
+                        call,
+                        param
+                    );
+                    _invokeJumpMethod = lambda.Compile();
+                }
+                catch (Exception ex)
+                {
+                    Melon<Main>.Logger.Error(
+                        $"Failed to compile delegate for Jump method: {ex.Message}. Auto-jumping will not function."
+                    );
+                }
+            }
+            else
             {
                 Melon<Main>.Logger.Error(
                     "Reflection: PlayerMovement.Jump method not found. Auto-jumping will not function."
@@ -175,7 +194,7 @@ public class Main : MelonMod
             }
 
             // Initialize reflection members for isJumping field or property
-            _isJumpingMemberInfo =
+            MemberInfo isJumpingMember =
                 (MemberInfo)
                     typeof(PlayerMovementType).GetField(
                         "isJumping",
@@ -186,7 +205,26 @@ public class Main : MelonMod
                     BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public
                 );
 
-            if (_isJumpingMemberInfo == null)
+            if (isJumpingMember != null)
+            {
+                try
+                {
+                    var param = Expression.Parameter(playerMovementType, "playerMovement");
+                    Expression memberAccess = Expression.MakeMemberAccess(param, isJumpingMember);
+                    var lambda = Expression.Lambda<Func<PlayerMovementType, bool>>(
+                        memberAccess,
+                        param
+                    );
+                    _getIsJumpingValue = lambda.Compile();
+                }
+                catch (Exception ex)
+                {
+                    Melon<Main>.Logger.Error(
+                        $"Failed to compile delegate for isJumping member: {ex.Message}. Auto-jump condition check might be impaired."
+                    );
+                }
+            }
+            else
             {
                 Melon<Main>.Logger.Error(
                     "Reflection: PlayerMovement.isJumping member (field/property) not found. Auto-jump condition check might be impaired."
@@ -328,9 +366,19 @@ public class Main : MelonMod
                     $"[ExecuteAutoJumpCoro ID {instanceId}] Conditions met after delay. Performing Jump."
                 );
 #endif
-                var jumpEnumerator = _jumpMethodInfo.Invoke(playerMovement, null) as IEnumerator;
-                playerMovement.StartCoroutine(jumpEnumerator);
-                MelonCoroutines.Start(MonitorLiftoff(playerMovement, jumpState));
+                if (_invokeJumpMethod != null)
+                {
+                    var jumpEnumerator = _invokeJumpMethod(playerMovement); // Use compiled delegate
+                    playerMovement.StartCoroutine(jumpEnumerator);
+                    MelonCoroutines.Start(MonitorLiftoff(playerMovement, jumpState));
+                }
+                else
+                {
+                    Melon<Main>.Logger.Error(
+                        "[ExecuteAutoJumpCoro] Jump method delegate is null. Cannot execute jump."
+                    );
+                    jumpState.AwaitingLiftoffAfterAutoJump = false; // Reset state
+                }
             }
             else
             {
@@ -344,11 +392,11 @@ public class Main : MelonMod
         }
 
         private static System.Collections.IEnumerator MonitorLiftoff(
-            PlayerMovementType pm,
+            PlayerMovementType playerMovement,
             PlayerJumpState jumpState
         )
         {
-            int instanceId = pm.GetInstanceID();
+            int instanceId = playerMovement.GetInstanceID();
             float timeoutSeconds = AutoJumpLiftoffTimeoutMilliseconds.Value / 1000.0f;
             float endTime = Time.time + timeoutSeconds;
 
@@ -361,7 +409,7 @@ public class Main : MelonMod
             while (Time.time < endTime)
             {
                 // Player or controller gone
-                if (pm == null || pm.Controller == null)
+                if (playerMovement == null || playerMovement.Controller == null)
                 {
                     yield break;
                 }
@@ -380,7 +428,11 @@ public class Main : MelonMod
             }
 
             // Timeout has expired. Check if still awaiting liftoff.
-            if (pm != null && pm.Controller != null && jumpState.AwaitingLiftoffAfterAutoJump)
+            if (
+                playerMovement != null
+                && playerMovement.Controller != null
+                && jumpState.AwaitingLiftoffAfterAutoJump
+            )
             {
 #if DEBUG
                 Melon<Main>.Logger.Warning(
@@ -388,7 +440,7 @@ public class Main : MelonMod
                 );
 #endif
                 // Final check using Controller.isGrounded
-                if (pm.Controller.isGrounded)
+                if (playerMovement.Controller.isGrounded)
                 {
 #if DEBUG
                     Melon<Main>.Logger.Warning(
@@ -415,12 +467,12 @@ public class Main : MelonMod
 #endif
         }
 
-        private static bool ShouldAutoJump(PlayerMovementType pm)
+        private static bool ShouldAutoJump(PlayerMovementType playerMovement)
         {
             if (
                 !jumpActionReference.action.IsPressed()
-                || !(pm.IsGrounded || pm.Controller.isGrounded) // Player is grounded if EITHER PM or Controller says so
-                || !pm.canJump
+                || !(playerMovement.IsGrounded || playerMovement.Controller.isGrounded) // Player is grounded if EITHER PM or Controller says so
+                || !playerMovement.canJump
             )
             {
                 return false;
@@ -428,14 +480,7 @@ public class Main : MelonMod
 
             try
             {
-                if (_isJumpingMemberInfo is FieldInfo fieldInfo)
-                {
-                    return (bool)fieldInfo.GetValue(pm);
-                }
-                else if (_isJumpingMemberInfo is PropertyInfo propertyInfo)
-                {
-                    return (bool)propertyInfo.GetValue(pm);
-                }
+                return !_getIsJumpingValue(playerMovement);
             }
             catch (Exception ex)
             {
@@ -446,13 +491,13 @@ public class Main : MelonMod
             return false;
         }
 
-        private static bool ShouldSkipPatch(PlayerMovementType __instance) =>
+        private static bool ShouldSkipPatch(PlayerMovementType playerMovement) =>
             !Enabled.Value
-            || _jumpMethodInfo == null
-            || _isJumpingMemberInfo == null
+            || _invokeJumpMethod == null
+            || _getIsJumpingValue == null
             || jumpActionReference == null
             || jumpActionReference.action == null
-            || __instance == null
-            || __instance.Controller == null;
+            || playerMovement == null
+            || playerMovement.Controller == null;
     }
 }
