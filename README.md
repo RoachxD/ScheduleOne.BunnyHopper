@@ -4,7 +4,7 @@
 )](https://www.scheduleonegame.com/)
 [![MelonLoader](https://img.shields.io/badge/MelonLoader-v0.7.x-79F863?labelColor=FA3768
 )](https://melonwiki.xyz/#/)
-[![Version](https://img.shields.io/badge/Version-1.0.0-D4AC2D?labelColor=3D311D)](https://github.com/RoachxD/ScheduleOne.BunnyHopper/releases/latest)
+[![Version](https://img.shields.io/badge/Version-1.1.0-D4AC2D?labelColor=3D311D)](https://github.com/RoachxD/ScheduleOne.BunnyHopper/releases/tag/v1.1.0)
 [![License](https://img.shields.io/badge/License-MIT-727C7C?labelColor=3D311D)](LICENSE.md)
 
 Tired of your thumbs getting a workout just to maintain momentum in Schedule I? Well, fret no more!

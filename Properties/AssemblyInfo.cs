@@ -14,7 +14,7 @@ using MelonLoader;
 [assembly: MelonInfo(
     typeof(BunnyHopper.Main),
     "Bunny Hopper",
-    "1.0.0",
+    "1.1.0",
     "Roach_ (Adrian Nicolae)",
     "https://github.com/RoachxD/ScheduleOne.BunnyHopper/releases/latest"
 )]

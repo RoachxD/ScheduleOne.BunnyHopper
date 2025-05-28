@@ -5,7 +5,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>BunnyHopper</AssemblyName>
     <Description>A MelonLoader mod for Schedule I that enables "true" auto-jumping/bunny-hopping.</Description>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>Roach_</Authors>
     <Copyright>Copyright © 2025 Roach_ (Adrian Nicolae)</Copyright>
     <NeutralLanguage>en-GB</NeutralLanguage>
