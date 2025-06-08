@@ -11,7 +11,7 @@ Tired of your thumbs getting a workout just to maintain momentum in Schedule I? 
 
 Introducing **Bunny Hopper**, the mod born out of a deep and *slightly* amused observation of the limitations of previous auto-jump attempts.
 
-Inspired (and perhaps a little exasperated) by the noble but ultimately flawed efforts of others (I'm talking about you, Robert), **Bunny Hopper** aims to provide a seamless and enjoyable bunny hopping experience in Schedule I. No more accidental stops, no more missed jumps, *and crucially*, NO MORE ACCIDENTAL JUMPS! Just smooth, continuous movement that'll make you the envy of every farmer and factory worker.
+Inspired (and perhaps a little exasperated) by the noble but ultimately flawed efforts of others (I'm talking about you, Robert), **Bunny Hopper** aims to provide a seamless and enjoyable bunny hopping experience in Schedule I. No more missed jumps, no more accidental stops, *and crucially*, NO MORE ACCIDENTAL JUMPS! Just smooth, continuous movement that'll make you the envy of every farmer and factory worker.
 
 ## Features
 
@@ -81,12 +81,12 @@ If you'd like to build the mod yourself or contribute to its development, here's
     * **VS Code Users:** The repository includes a `.vscode/tasks.json` file which defines build tasks for all configurations. You can run these tasks directly from VS Code (e.g., by pressing `Ctrl+Shift+B` and selecting a build task).
 5. **Output:**
     * The compiled mod (`.dll` file) will be placed in the appropriate `bin\[Configuration]\[TargetFramework]` subfolder within the project directory (e.g., `bin\Release_Il2Cpp\net6.0`).
-    * The build process will also automatically copy the compiled mod to the `Mods` folder in your Schedule I game directory.
+    * The build process will also automatically kill the `Schedule I.exe` process (if running) before copying the compiled mod to the `Mods` folder in your Schedule I game directory.
 
 ## Credits
 
 * **[Roach_ (Adrian Nicolae)](https://github.com/RoachxD):** Developer and maintainer of **Bunny Hopper**.
-* **[miapuffia (Robert D. Rioja)](https://github.com/miapuffia):** For being the inspiration behind this mod, proving that sometimes, you just have to do it yourself. All kidding aside, your work on auto-jumping was a great starting point and a learning experience, and I am thankful for your work and contributions to the modding community.
+* **[miapuffia (Robert D. Rioja)](https://github.com/miapuffia):** For being the inspiration behind this mod, proving that sometimes, you just have to do it yourself. All kidding aside, your work on auto-jumping was a great starting point and a learning experience, and I am thankful for it and your contributions to the modding community.
 * **[MelonLoader Team](https://melonwiki.xyz/#/):** For providing the framework that makes modding Schedule I possible.
 * **[Tyler's Video Game Studio](https://www.scheduleonegame.com/presskit/schedule-one/index.html#about):** For creating such an engaging game (that sparked the need for this mod).
 
