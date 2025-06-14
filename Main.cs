@@ -75,7 +75,8 @@ public class Main : MelonMod
         }
         catch (Exception ex)
         {
-            Melon<Main>.Logger.Error($"Error during Harmony's PatchAll execution: {ex}");
+            Melon<Main>.Logger.Error($"Failed to apply Harmony patches: {ex.Message}");
+            Melon<Main>.Logger.Error(ex);
         }
     }
 
